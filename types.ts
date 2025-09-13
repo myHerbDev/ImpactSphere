@@ -1,27 +1,27 @@
 import type React from 'react';
 
-// FIX: Added missing Habit type for HabitTracker component.
+// FIX: Add Habit type for HabitTracker component.
 export interface Habit {
   id: number;
   text: string;
   completed: boolean;
 }
 
-// FIX: Added missing Library types for Library component.
+// FIX: Add LibraryCategory and LibraryItem types for Library component.
 export type LibraryCategory = 'Tips' | 'Recipes' | 'DIY Projects';
 export interface LibraryItem {
   title: string;
   description: string;
 }
 
-// FIX: Added missing Challenge type for Challenges component.
+// FIX: Add Challenge type for Challenges component.
 export interface Challenge {
   title: string;
   description: string;
   difficulty: 'Easy' | 'Medium' | 'Hard';
 }
 
-// FIX: Added missing Goal type for GoalTracker component.
+// FIX: Add Goal type for GoalTracker component.
 export interface Goal {
   id: number;
   text: string;

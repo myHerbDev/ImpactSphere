@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
-// FIX: Added missing types to the import.
-import type { EsgPlaybookCategory, ResourceItem, Initiative, SustainabilityData, AssessmentScores, Challenge, LibraryCategory, LibraryItem, SustainabilityTrend } from '../types';
+// FIX: Add missing types to import to resolve errors in unused components.
+import type { EsgPlaybookCategory, ResourceItem, Initiative, SustainabilityData, AssessmentScores, SustainabilityTrend, LibraryCategory, LibraryItem, Challenge } from '../types';
 
 const API_KEY = process.env.API_KEY;
 
@@ -57,9 +57,14 @@ export const getEsgPlaybookContent = async (category: EsgPlaybookCategory): Prom
       },
     });
     const jsonString = response.text;
-    return JSON.parse(jsonString) as ResourceItem[];
+    const parsed = JSON.parse(jsonString) as ResourceItem[];
+    if (parsed.length === 0) {
+        throw new Error("API returned empty array");
+    }
+    return parsed;
   } catch (error) {
     console.error(`Error fetching ESG playbook content for ${category}:`, error);
+    // Return an empty array to be handled by the component's fallback logic
     return [];
   }
 };
@@ -98,9 +103,14 @@ export const getEsgInitiatives = async (): Promise<Initiative[]> => {
             },
         });
         const jsonString = response.text;
-        return JSON.parse(jsonString) as Initiative[];
+        const parsed = JSON.parse(jsonString) as Initiative[];
+        if (parsed.length === 0) {
+            throw new Error("API returned empty array");
+        }
+        return parsed;
     } catch (error) {
         console.error("Error fetching ESG initiatives:", error);
+        // Return an empty array to be handled by the component's fallback logic
         return [];
     }
 };
@@ -176,88 +186,98 @@ export const getSustainabilityTrends = async (): Promise<SustainabilityTrend[]> 
             },
         });
         const jsonString = response.text;
-        return JSON.parse(jsonString) as SustainabilityTrend[];
+        const parsed = JSON.parse(jsonString) as SustainabilityTrend[];
+         if (parsed.length === 0) {
+            throw new Error("API returned empty array");
+        }
+        return parsed;
     } catch (error) {
         console.error("Error fetching sustainability trends:", error);
+        // Return an empty array to be handled by the component's fallback logic
         return [];
     }
 };
 
-// FIX: Added missing function getDailyRecommendation for Recommendations component.
+// FIX: Add getDailyRecommendation function for Recommendations component.
 export const getDailyRecommendation = async (): Promise<string> => {
-    const prompt = "Generate a short, actionable, and inspiring eco-friendly tip for the day. It should be a single sentence and easy for anyone to implement.";
-    try {
-        const response = await ai.models.generateContent({ model, contents: prompt });
-        return response.text;
-    } catch (error) {
-        console.error("Error fetching daily recommendation:", error);
-        return "Could not fetch a tip. Try reducing single-use plastics today!";
-    }
+  const prompt = "Generate a concise, actionable, and inspiring daily recommendation for living a more sustainable lifestyle. It should be a single sentence.";
+  try {
+    const response = await ai.models.generateContent({ model, contents: prompt });
+    return response.text.trim();
+  } catch (error) {
+    console.error("Error fetching daily recommendation:", error);
+    return "Check your local community board for recycling events this week!";
+  }
 };
 
-// FIX: Added missing function getLibraryContent for Library component.
-const librarySchema = {
-    type: Type.ARRAY,
-    items: {
-      type: Type.OBJECT,
-      properties: {
-        title: {
-          type: Type.STRING,
-          description: "A short, engaging title for the item.",
-        },
-        description: {
-          type: Type.STRING,
-          description: "A detailed description or instructions, 2-3 paragraphs long.",
-        },
+// FIX: Add schema for getLibraryContent function.
+const libraryItemSchema = {
+  type: Type.ARRAY,
+  items: {
+    type: Type.OBJECT,
+    properties: {
+      title: {
+        type: Type.STRING,
+        description: 'A catchy and descriptive title for the library item.',
       },
-      required: ["title", "description"],
+      description: {
+        type: Type.STRING,
+        description: 'A detailed description of the tip, recipe, or DIY project. Should be a few paragraphs long.',
+      },
     },
+    required: ["title", "description"],
+  },
 };
 
+// FIX: Add getLibraryContent function for Library component.
 export const getLibraryContent = async (category: LibraryCategory): Promise<LibraryItem[]> => {
-    let prompt = '';
-    switch (category) {
-        case 'Tips':
-            prompt = "Generate 4 actionable tips for sustainable living. For each tip, provide a title and a detailed description explaining its impact and how to implement it.";
-            break;
-        case 'Recipes':
-            prompt = "Generate 4 simple, eco-friendly (e.g., plant-based, low-waste) recipes. For each recipe, provide a title and a detailed description including ingredients and steps.";
-            break;
-        case 'DIY Projects':
-            prompt = "Generate 4 easy DIY projects for upcycling common household items. For each project, provide a title and a detailed description of the materials needed and the steps to complete it.";
-            break;
-    }
+  let prompt = '';
+  switch (category) {
+    case 'Tips':
+      prompt = "Generate 4 detailed and practical tips for reducing household waste. Each tip should have a title and a detailed description.";
+      break;
+    case 'Recipes':
+      prompt = "Generate 4 simple and delicious plant-based recipes that are beginner-friendly. Each recipe should have a title and a detailed description including ingredients and steps.";
+      break;
+    case 'DIY Projects':
+       prompt = "Generate 4 creative DIY projects for upcycling common household items. Each project should have a title and a detailed description of the materials and instructions.";
+      break;
+  }
 
-    try {
-        const response = await ai.models.generateContent({
-            model,
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: librarySchema,
-            },
-        });
-        const jsonString = response.text;
-        return JSON.parse(jsonString) as LibraryItem[];
-    } catch (error) {
-        console.error(`Error fetching library content for ${category}:`, error);
-        return [];
+  try {
+    const response = await ai.models.generateContent({
+      model,
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: libraryItemSchema,
+      },
+    });
+    const jsonString = response.text;
+    const parsed = JSON.parse(jsonString) as LibraryItem[];
+    if (parsed.length === 0) {
+        throw new Error("API returned empty array");
     }
+    return parsed;
+  } catch (error) {
+    console.error(`Error fetching library content for ${category}:`, error);
+    return [];
+  }
 };
 
-// FIX: Added missing function getWeeklyChallenges for Challenges component.
-const weeklyChallengesSchema = {
+// FIX: Add schema for getWeeklyChallenges function.
+const challengesSchema = {
     type: Type.ARRAY,
     items: {
       type: Type.OBJECT,
       properties: {
         title: {
           type: Type.STRING,
-          description: "The name of the weekly challenge.",
+          description: "The name of the weekly sustainability challenge.",
         },
         description: {
           type: Type.STRING,
-          description: "A short, motivational explanation of the challenge.",
+          description: "A detailed explanation of the challenge, what it involves, and why it's impactful.",
         },
         difficulty: {
           type: Type.STRING,
@@ -269,32 +289,37 @@ const weeklyChallengesSchema = {
     },
 };
 
+// FIX: Add getWeeklyChallenges function for Challenges component.
 export const getWeeklyChallenges = async (): Promise<Challenge[]> => {
     try {
         const response = await ai.models.generateContent({
             model,
-            contents: "Generate 3 unique and engaging weekly eco-challenges. Each challenge should have a title, a short description, and a difficulty level ('Easy', 'Medium', or 'Hard').",
+            contents: "Generate 3 engaging weekly sustainability challenges for individuals. Each challenge should have a title, a detailed description, and a difficulty level ('Easy', 'Medium', 'Hard').",
             config: {
                 responseMimeType: "application/json",
-                responseSchema: weeklyChallengesSchema,
+                responseSchema: challengesSchema,
             },
         });
         const jsonString = response.text;
-        return JSON.parse(jsonString) as Challenge[];
+        const parsed = JSON.parse(jsonString) as Challenge[];
+        if (parsed.length === 0) {
+            throw new Error("API returned empty array");
+        }
+        return parsed;
     } catch (error) {
         console.error("Error fetching weekly challenges:", error);
         return [];
     }
 };
 
-// FIX: Added missing function getStrategicInsight for StrategicInsight component.
+// FIX: Add getStrategicInsight function for StrategicInsight component.
 export const getStrategicInsight = async (): Promise<string> => {
-    const prompt = `Generate a concise, high-level strategic insight related to ESG (Environmental, Social, and Governance) for a business leader. The insight should be a single, thought-provoking sentence that could inspire a new initiative or shift in perspective. Focus on topics like sustainable innovation, supply chain resilience, stakeholder engagement, or long-term value creation.`;
-    try {
-        const response = await ai.models.generateContent({ model, contents: prompt });
-        return response.text;
-    } catch (error) {
-        console.error("Error fetching strategic insight:", error);
-        return "Could not fetch an insight. Focus on integrating ESG data into core business strategy to unlock long-term value.";
-    }
+  const prompt = "Generate a single, thought-provoking strategic insight related to corporate ESG, sustainability, or the green economy. The insight should be concise and suitable for a business leader. Frame it as a single sentence.";
+  try {
+    const response = await ai.models.generateContent({ model, contents: prompt });
+    return response.text.trim();
+  } catch (error) {
+    console.error("Error fetching strategic insight:", error);
+    return "Integrating ESG metrics into executive compensation is a key driver for accountability.";
+  }
 };

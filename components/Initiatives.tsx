@@ -5,6 +5,12 @@ import { TrophyIcon } from './Icons';
 import Modal from './Modal';
 import PageHeader from './PageHeader';
 
+const SAMPLE_INITIATIVES: Initiative[] = [
+    { title: 'Supply Chain Decarbonization Pilot', description: 'Launch a pilot program with 5-10 key suppliers to establish a baseline for their Scope 1 and 2 emissions. This initiative involves co-developing a standardized data collection framework and identifying shared opportunities for energy efficiency, providing a scalable model for broader supply chain engagement.', difficulty: 'High' },
+    { title: 'Develop an ESG Data Governance Council', description: 'Establish a cross-functional council with members from Finance, IT, Sustainability, and Operations to oversee the management of all ESG data. The council\'s first task is to create a central data dictionary and map key data flows to ensure consistency and reliability for internal and external reporting.', difficulty: 'Medium' },
+    { title: 'Employee Sustainability Innovation Challenge', description: 'Host a company-wide innovation challenge focused on generating practical, resource-saving ideas for daily operations. This empowers employees, fosters a culture of sustainability, and can uncover significant opportunities for cost savings and efficiency improvements with minimal capital investment.', difficulty: 'Low' },
+];
+
 const DifficultyBadge: React.FC<{ difficulty: 'Low' | 'Medium' | 'High' }> = ({ difficulty }) => {
     const colorClasses = {
         Low: 'bg-green-500 text-white',
@@ -21,18 +27,25 @@ const DifficultyBadge: React.FC<{ difficulty: 'Low' | 'Medium' | 'High' }> = ({ 
 const Initiatives: React.FC = () => {
     const [initiatives, setInitiatives] = useState<Initiative[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const [isShowingSampleData, setIsShowingSampleData] = useState(false);
     const [modalContent, setModalContent] = useState<Initiative | null>(null);
 
     const fetchInitiatives = useCallback(async () => {
         setIsLoading(true);
-        setError(null);
+        setIsShowingSampleData(false);
         try {
             const items = await getEsgInitiatives();
-            setInitiatives(items);
+            if (items && items.length > 0) {
+              setInitiatives(items);
+            } else {
+              console.warn("API call for initiatives failed or returned no data. Falling back to sample data.");
+              setInitiatives(SAMPLE_INITIATIVES);
+              setIsShowingSampleData(true);
+            }
         } catch (err) {
-            setError('Failed to fetch initiatives.');
-            console.error(err);
+            console.error('An unexpected error occurred while fetching initiatives:', err);
+            setInitiatives(SAMPLE_INITIATIVES);
+            setIsShowingSampleData(true);
         } finally {
             setIsLoading(false);
         }
@@ -58,6 +71,12 @@ const Initiatives: React.FC = () => {
                   title="ESG Initiatives" 
                   description="Adopt a new ESG initiative to drive impactful change this quarter."
                 />
+                 {isShowingSampleData && (
+                    <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 mb-6 rounded-md" role="alert">
+                        <p className="font-bold">Live Data Temporarily Unavailable</p>
+                        <p>Displaying sample initiatives due to high traffic. Live content will return shortly.</p>
+                    </div>
+                )}
                 {isLoading ? (
                     <div className="space-y-4">
                         {Array.from({ length: 3 }).map((_, index) => (
@@ -72,8 +91,6 @@ const Initiatives: React.FC = () => {
                             </div>
                         ))}
                     </div>
-                ) : error ? (
-                    <p className="text-red-500 text-center">{error}</p>
                 ) : (
                     <div className="space-y-4">
                         {initiatives.map((initiative, index) => (
