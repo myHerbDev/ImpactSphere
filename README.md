@@ -37,6 +37,57 @@ ImpactSphere provides APIs for integrating with external systems and services. R
 ## Contributing
 We welcome contributions to ImpactSphere. Please refer to the [contributing guide](https://github.com/myHerbDev/ImpactSphere/blob/main/CONTRIBUTING.md) for more information.
 
+# 🌿 Support myHerbDev on GitHub Sponsors
+
+Welcome to **myHerbDev** — an open-source initiative empowering herbalists, gardeners, and natural wellness enthusiasts through intuitive, beautifully crafted software.
+
+---
+
+## 💡 What is myHerbDev?
+
+myHerbDev helps users:
+- 🌱 Track and manage herbal remedies
+- 📚 Document plant properties and traditional uses
+- 🧪 Log experiments and formulations
+- 🌍 Connect with a global network of herbal developers
+
+Whether you're a backyard herbalist or a clinical practitioner, myHerbDev is built to support your journey.
+
+---
+
+## 🚀 Why Sponsor?
+
+Your support helps us:
+- ✅ Keep the project free and open-source
+- 🛠️ Improve features and accessibility
+- 📈 Scale infrastructure and performance
+- 👥 Support contributors and grow the community
+
+---
+
+## 🎁 Sponsor Perks
+
+| Tier        | Perks                                                                 |
+|-------------|-----------------------------------------------------------------------|
+| 🌿 Seed     | Name listed in README + Monthly updates                               |
+| 🌼 Sprout   | Early access to new features + Priority feedback channel              |
+| 🌳 Rooted   | Influence roadmap + Featured sponsor badge on our site                |
+
+---
+
+## 🙌 Join Us
+
+We believe in the power of plants and the people who work with them. If you do too, consider becoming a sponsor and help us grow 🌿
+
+[![Become a Sponsor](https://img.shields.io/badge/Sponsor-💚%20myHerbDev-brightgreen?style=for-the-badge)](https://github.com/sponsors/myHerbDev)
+[![Follow on GitHub](https://img.shields.io/badge/Follow-🌿%20myHerbDev-blue?style=for-the-badge)](https://github.com/sponsors/myHerbDev)
+[![Join the Community](https://img.shields.io/badge/Join-🌍%20Discord-purple?style=for-the-badge)](https://discord.gg/myHerb)
+
+---
+
+Thank you for supporting open-source herbal innovation!
+
+
 ## License and Copyright
 ImpactSphere is licensed under the [license name] license. Copyright [year] [copyright holder]. All rights reserved.
 
