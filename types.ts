@@ -72,6 +72,8 @@ export interface IndustryAverageData {
   energyConsumption: number;
   supplyChainEmissions: number;
   renewableEnergyMix: number;
+  wasteDiversionRate: number;
+  waterUsage: number;
 }
 
 export type AssessmentCategoryName = 'Reporting process and capability' | 'Strategy and value' | 'People and culture' | 'Technology and data' | 'ESG Data Governance';

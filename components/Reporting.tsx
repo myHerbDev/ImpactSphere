@@ -180,7 +180,7 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                     {kpiData.map(kpi => <KpiCard key={kpi.label} {...kpi} />)}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:grid-cols-2 !break-after-page print:break-inside-avoid">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:grid-cols-2 print:break-inside-avoid">
                    <div className="bg-surface p-6 rounded-lg shadow-md">
                         <h3 className="text-lg font-semibold text-text-primary mb-4">Carbon Footprint by Scope (tCO₂e)</h3>
                         {isLoadingAverages || !industryAverages ? <ChartLoader /> : (
@@ -200,6 +200,32 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                             }} averageValue={industryAverages.renewableEnergyMix} />
                         )}
                    </div>
+                </div>
+                
+                <div className="bg-surface p-6 rounded-lg shadow-md print:break-inside-avoid !break-after-page">
+                    <h3 className="text-lg font-semibold text-text-primary mb-4">Operational Efficiency vs. Industry Benchmarks</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 pt-4">
+                        <div>
+                            <h4 className="text-md font-medium text-text-primary text-center mb-2">Waste Diversion Rate (%)</h4>
+                             {isLoadingAverages || !industryAverages ? <ChartLoader height={250} /> : (
+                                <BarChart data={{
+                                    labels: ['Diversion Rate'],
+                                    values: [wasteDiversionRate],
+                                    averageValues: [industryAverages.wasteDiversionRate]
+                                }} />
+                            )}
+                        </div>
+                        <div>
+                             <h4 className="text-md font-medium text-text-primary text-center mb-2">Water Usage (m³)</h4>
+                             {isLoadingAverages || !industryAverages ? <ChartLoader height={250} /> : (
+                                <BarChart data={{
+                                    labels: ['Water Usage'],
+                                    values: [waterUsage],
+                                    averageValues: [industryAverages.waterUsage]
+                                }} />
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 print:hidden">

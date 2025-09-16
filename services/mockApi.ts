@@ -12,6 +12,8 @@ export const fetchIndustryAverages = (): Promise<IndustryAverageData> => {
         energyConsumption: 11200, // 28000 MWh * 0.4 tCO2e/MWh is a common emission factor
         supplyChainEmissions: 18000,
         renewableEnergyMix: 35,
+        wasteDiversionRate: 65,
+        waterUsage: 55000,
       });
     }, 1200);
   });
