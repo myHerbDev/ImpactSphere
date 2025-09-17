@@ -1,6 +1,8 @@
 # ImpactSphere
 The **ImpactSphere** project offers several key features focused on providing insights and metrics related to Environmental, Social, and Governance (ESG) factors. Here are the main features:
 
+<img width="2172" height="2192" alt="ImpactSphere Project (1)" src="https://github.com/user-attachments/assets/54bd8ddb-c3fe-450f-9aa2-c01e8bd2a554" />
+
 ## Main Features
 
 1. **ESG Metrics and Insights**:
