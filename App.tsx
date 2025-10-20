@@ -21,7 +21,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (activeView) {
       case 'Impact Dashboard':
-        return <ImpactDashboard />;
+        return <ImpactDashboard sustainabilityData={sustainabilityData} />;
       case 'ESG Playbook':
         return <ResourceHub />;
       case 'Initiatives':
@@ -33,7 +33,7 @@ const App: React.FC = () => {
       case 'Reporting':
         return <Reporting sustainabilityData={sustainabilityData} />;
       default:
-        return <ImpactDashboard />;
+        return <ImpactDashboard sustainabilityData={sustainabilityData} />;
     }
   };
 

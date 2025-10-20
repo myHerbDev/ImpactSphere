@@ -2,6 +2,8 @@ import React from 'react';
 import { AssessmentIcon, FlaskIcon, BookIcon, ReportingIcon } from './Icons';
 import PageHeader from './PageHeader';
 import SustainabilityTrends from './SustainabilityTrends';
+import type { SustainabilityData } from '../types';
+import KpiCard from './KpiCard';
 
 const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; children: React.ReactNode }> = ({ icon, title, children }) => (
   <div className="bg-surface p-6 rounded-lg shadow-md transition-shadow hover:shadow-lg">
@@ -13,7 +15,11 @@ const FeatureCard: React.FC<{ icon: React.ReactNode; title: string; children: Re
   </div>
 );
 
-const ImpactDashboard: React.FC = () => {
+interface ImpactDashboardProps {
+  sustainabilityData: SustainabilityData | null;
+}
+
+const ImpactDashboard: React.FC<ImpactDashboardProps> = ({ sustainabilityData }) => {
   return (
     <div className="space-y-12 animate-fade-in">
       {/* Hero Section */}
@@ -46,6 +52,30 @@ const ImpactDashboard: React.FC = () => {
             Generate compelling reports with clear data visualizations to communicate your progress to stakeholders and investors.
           </FeatureCard>
         </div>
+      </section>
+
+      {/* Your Organization's Impact Section */}
+      <section>
+        <div className="border-t border-border pt-12">
+            <PageHeader title="Your Organization's Impact" description="A summary of your key performance indicators based on your latest data entry." />
+        </div>
+        {sustainabilityData ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <KpiCard label="Carbon Footprint (tCO₂e)" value={sustainabilityData.carbonFootprint.toLocaleString()} change={-5} changeType='decrease' />
+                <KpiCard label="Energy Consumption (MWh)" value={sustainabilityData.energyConsumption.toLocaleString()} change={-12} changeType='decrease' />
+                <KpiCard label="Renewable Energy Mix" value={`${sustainabilityData.renewableEnergyMix}%`} change={20} changeType='increase' />
+                <KpiCard label="Waste Diversion Rate" value={`${sustainabilityData.wasteDiversionRate}%`} change={8} changeType='increase' />
+                <KpiCard label="Water Usage (m³)" value={sustainabilityData.waterUsage.toLocaleString()} change={-9} changeType='decrease' />
+                <KpiCard label="Supply Chain Emissions" value={sustainabilityData.supplyChainEmissions.toLocaleString()} change={-7} changeType='decrease' />
+                <KpiCard label="Employee Engagement" value={`${sustainabilityData.employeeEngagement}%`} change={10} changeType='increase' />
+                <KpiCard label="Sustainable Procurement" value={`${sustainabilityData.sustainableProcurement}%`} change={15} changeType='increase' />
+            </div>
+        ) : (
+            <div className="bg-surface p-8 rounded-lg shadow-md text-center">
+                <h3 className="text-xl font-semibold text-text-primary">No Data Available</h3>
+                <p className="text-text-secondary mt-2">Enter your sustainability data on the 'Data Entry' page to see your key metrics here.</p>
+            </div>
+        )}
       </section>
 
       {/* Global Sustainability Snapshot Section */}
