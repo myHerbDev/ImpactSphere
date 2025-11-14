@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 // FIX: Add missing types to import to resolve errors in unused components.
-import type { EsgPlaybookCategory, ResourceItem, Initiative, SustainabilityData, AssessmentScores, SustainabilityTrend, LibraryCategory, LibraryItem, Challenge } from '../types';
+import type { EsgPlaybookCategory, ResourceItem, Initiative, SustainabilityData, AssessmentScores, SustainabilityTrend, LibraryCategory, LibraryItem, Challenge, IndustryAverageData } from '../types';
 
 const API_KEY = process.env.API_KEY;
 
@@ -25,25 +25,34 @@ const resourceSchema = {
         type: Type.STRING,
         description: 'A detailed summary of the resource, outlining its strategic value for an organization. Should be at least 2-3 paragraphs long and reflect concepts from the ESG guide.',
       },
+      tags: {
+        type: Type.ARRAY,
+        items: {
+            type: Type.STRING,
+        },
+        description: 'An array of 2-4 relevant, single-word or short-phrase keywords or tags (e.g., "Risk Management", "Finance", "Strategy").'
+      }
     },
-    required: ["title", "description"],
+    required: ["title", "description", "tags"],
   },
 };
 
 export const getEsgPlaybookContent = async (category: EsgPlaybookCategory): Promise<ResourceItem[]> => {
   let prompt = '';
+  const promptSuffix = " For each article, provide a title, a detailed description, and an array of 2-4 relevant tags.";
+
   switch (category) {
     case 'ESG Value Drivers':
-      prompt = "Based on 'The Leader's Guide to Sustainable Business Transformation', generate 4 detailed articles explaining the key strategic business values driven by ESG data. Cover topics like Cost Savings, Competitive Advantage, Business Resilience, and Risk Management.";
+      prompt = `Based on 'The Leader's Guide to Sustainable Business Transformation', generate 4 detailed articles explaining the key strategic business values driven by ESG data. Cover topics like Cost Savings, Competitive Advantage, Business Resilience, and Risk Management.${promptSuffix}`;
       break;
     case 'Overcoming Challenges':
-      prompt = "Based on the guide, generate 4 articles on the shared challenges in transforming a business with ESG data. Cover Siloed Data, Resourcing Constraints, Scope & Complexity, and Lack of a Common Language.";
+      prompt = `Based on the guide, generate 4 articles on the shared challenges in transforming a business with ESG data. Cover Siloed Data, Resourcing Constraints, Scope & Complexity, and Lack of a Common Language.${promptSuffix}`;
       break;
     case 'Data Readiness Framework':
-       prompt = "Based on the guide, generate 4 articles explaining the framework for advancing ESG data readiness. Detail the stages (Data Gathering, Data Insights, Data Action) and key dimensions like Reporting Process, Technology, and People & Culture.";
+       prompt = `Based on the guide, generate 4 articles explaining the framework for advancing ESG data readiness. Detail the stages (Data Gathering, Data Insights, Data Action) and key dimensions like Reporting Process, Technology, and People & Culture.${promptSuffix}`;
       break;
     case 'Industry Use Cases':
-      prompt = "Based on the guide, generate 4 articles summarizing ESG use cases and strategic opportunities for different industries. Cover Financial Services, Manufacturing, Retail, and Energy.";
+      prompt = `Based on the guide, generate 4 articles summarizing ESG use cases and strategic opportunities for different industries. Cover Financial Services, Manufacturing, Retail, and Energy.${promptSuffix}`;
       break;
   }
 
@@ -321,5 +330,24 @@ export const getStrategicInsight = async (): Promise<string> => {
   } catch (error) {
     console.error("Error fetching strategic insight:", error);
     return "Integrating ESG metrics into executive compensation is a key driver for accountability.";
+  }
+};
+
+export const getKpiAnalysis = async (data: SustainabilityData, averages: IndustryAverageData): Promise<string> => {
+  const comparison = `
+- Carbon Footprint: Your company ${data.carbonFootprint.toLocaleString()} tCO₂e vs Industry Average ${averages.carbonFootprint.toLocaleString()} tCO₂e
+- Energy Consumption: Your company ${data.energyConsumption.toLocaleString()} MWh vs Industry Average ${averages.energyConsumption.toLocaleString()} MWh
+- Renewable Energy Mix: Your company ${data.renewableEnergyMix}% vs Industry Average ${averages.renewableEnergyMix}%
+- Waste Diversion Rate: Your company ${data.wasteDiversionRate}% vs Industry Average ${averages.wasteDiversionRate}%
+- Water Usage: Your company ${data.waterUsage.toLocaleString()} m³ vs Industry Average ${averages.waterUsage.toLocaleString()} m³
+- Supply Chain Emissions: Your company ${data.supplyChainEmissions.toLocaleString()} tCO₂e vs Industry Average ${averages.supplyChainEmissions.toLocaleString()} tCO₂e
+`;
+  const prompt = `Act as an ESG analyst for "${data.businessName}". Based on the following data comparison, provide 3 actionable, strategic insights in markdown format. For each insight, provide a "**Why it matters**" and a "**What to do next**" section. Focus on the most significant deviations (both positive and negative) from the industry average.\n\nData:\n${comparison}`;
+  try {
+    const response = await ai.models.generateContent({ model, contents: prompt });
+    return response.text;
+  } catch (error) {
+    console.error("Error fetching KPI analysis:", error);
+    return "Could not generate analysis. A key strategy is to focus on metrics where your performance significantly trails the industry average to identify the most impactful areas for improvement.";
   }
 };

@@ -6,9 +6,10 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -59,6 +60,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
         <main className="p-6 overflow-y-auto">
           {children}
         </main>
+        {footer && (
+            <footer className="p-4 bg-background/50 border-t border-border mt-auto">
+                {footer}
+            </footer>
+        )}
       </div>
     </div>
   );

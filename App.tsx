@@ -48,7 +48,7 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
       <footer className="text-center p-4 mt-8 text-xs text-gray-500 print:hidden">
-        <p>&copy; 2024 ImpactSphere. Made by myHerb as a part of DevSphere - Sustainable Development.</p>
+        <p>&copy; 2024 ImpactSphere. Made by <a href="https://www.myherb.co.il/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">myHerb</a> as a part of DevSphere - Sustainable Development.</p>
       </footer>
     </div>
   );

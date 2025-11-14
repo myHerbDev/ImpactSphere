@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, Sector } from 'recharts';
 
 interface PieChartProps {
   data: {
@@ -21,6 +21,32 @@ const CustomTooltip = ({ active, payload }: any) => {
   }
   return null;
 };
+
+const renderActiveShape = (props: any) => {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
+
+  return (
+    <g>
+      <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill={fill} className="font-bold text-2xl">
+        {`${payload.value}%`}
+      </text>
+      <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="#5f6368" className="text-sm">
+        {payload.name}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 6}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))' }}
+      />
+    </g>
+  );
+};
+
 
 const PieChart: React.FC<PieChartProps> = ({ data, averageValue }) => {
   const chartData = data.labels.map((label, index) => ({
@@ -70,6 +96,8 @@ const PieChart: React.FC<PieChartProps> = ({ data, averageValue }) => {
               }}
             />
             <Pie
+              activeIndex={activeIndex}
+              activeShape={renderActiveShape}
               data={chartData}
               cx="40%"
               cy="50%"
@@ -81,16 +109,14 @@ const PieChart: React.FC<PieChartProps> = ({ data, averageValue }) => {
               innerRadius={60}
               onMouseEnter={onPieEnter}
               onMouseLeave={onPieLeave}
-              animationDuration={800}
-              animationBegin={0}
+              animationDuration={500}
             >
               {chartData.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
                   fill={COLORS[index % COLORS.length]} 
-                  opacity={activeIndex === null || activeIndex === index ? 1 : 0.5}
                   stroke={'#fff'}
-                  strokeWidth={activeIndex === index ? 4 : 1}
+                  strokeWidth={1}
                   style={{ transition: 'all 0.3s ease', outline: 'none' }}
                 />
               ))}

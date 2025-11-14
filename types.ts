@@ -40,6 +40,7 @@ export type EsgPlaybookCategory = 'ESG Value Drivers' | 'Overcoming Challenges' 
 export interface ResourceItem {
   title: string;
   description: string;
+  tags: string[];
 }
 
 export interface Initiative {

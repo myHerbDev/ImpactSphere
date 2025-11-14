@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import BarChart from './BarChart';
 import PieChart from './PieChart';
 import type { SustainabilityData, IndustryAverageData } from '../types';
-import { getReportSummary } from '../services/geminiService';
+import { getReportSummary, getKpiAnalysis } from '../services/geminiService';
 import { fetchIndustryAverages } from '../services/mockApi';
-import { LeafIcon, DownloadIcon, EmailIcon } from './Icons';
+import { LeafIcon, DownloadIcon, EmailIcon, CsvIcon } from './Icons';
 import PageHeader from './PageHeader';
 import CopyToClipboard from './CopyToClipboard';
 import KpiCard from './KpiCard';
@@ -19,12 +19,15 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
     const [isSummaryLoading, setIsSummaryLoading] = useState(false);
     const [industryAverages, setIndustryAverages] = useState<IndustryAverageData | null>(null);
     const [isLoadingAverages, setIsLoadingAverages] = useState(true);
+    const [kpiAnalysis, setKpiAnalysis] = useState('');
+    const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
 
     useEffect(() => {
         if (sustainabilityData) {
             const fetchData = async () => {
                 setIsSummaryLoading(true);
                 setIsLoadingAverages(true);
+                setIsAnalysisLoading(true);
                 
                 const summaryResult = await getReportSummary(sustainabilityData);
                 setSummary(summaryResult);
@@ -33,6 +36,10 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                 const averagesResult = await fetchIndustryAverages();
                 setIndustryAverages(averagesResult);
                 setIsLoadingAverages(false);
+                
+                const analysisResult = await getKpiAnalysis(sustainabilityData, averagesResult);
+                setKpiAnalysis(analysisResult);
+                setIsAnalysisLoading(false);
             };
             fetchData();
         }
@@ -96,6 +103,36 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
         URL.revokeObjectURL(url);
     };
 
+     const handleDownloadCsv = () => {
+        if (!industryAverages) return;
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Metric,Your Value,Industry Average\r\n";
+        
+        const dataMap = {
+            'Carbon Footprint (tCO₂e)': [sustainabilityData.carbonFootprint, industryAverages.carbonFootprint],
+            'Energy Consumption (MWh)': [sustainabilityData.energyConsumption, industryAverages.energyConsumption],
+            'Renewable Energy Mix (%)': [sustainabilityData.renewableEnergyMix, industryAverages.renewableEnergyMix],
+            'Waste Diversion Rate (%)': [sustainabilityData.wasteDiversionRate, industryAverages.wasteDiversionRate],
+            'Water Usage (m³)': [sustainabilityData.waterUsage, industryAverages.waterUsage],
+            'Supply Chain Emissions (tCO₂e)': [sustainabilityData.supplyChainEmissions, industryAverages.supplyChainEmissions],
+            'Employee Engagement (%)': [sustainabilityData.employeeEngagement, undefined],
+            'Sustainable Procurement (%)': [sustainabilityData.sustainableProcurement, undefined],
+        };
+
+        Object.entries(dataMap).forEach(([key, values]) => {
+            const row = [key, values[0] ?? 'N/A', values[1] ?? 'N/A'].join(',');
+            csvContent += row + "\r\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `${businessName.replace(/\s+/g, '_')}_data.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const handleShareEmail = () => {
         const subject = `Sustainability Report for ${businessName} from ImpactSphere`;
         let body = `Hello,\n\nPlease find the latest sustainability report summary for ${businessName} below.\n\n`;
@@ -110,6 +147,15 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
         <div style={{height: `${height}px`}} className="flex items-center justify-center text-text-secondary">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary mr-3"></div>
             Loading Chart Data...
+        </div>
+    );
+
+    const SkeletonLoader = () => (
+         <div className="space-y-2 mt-2">
+            <div className="h-4 bg-background rounded w-full animate-pulse"></div>
+            <div className="h-4 bg-background rounded w-5/6 animate-pulse"></div>
+            <div className="h-4 bg-background rounded w-full animate-pulse"></div>
+            <div className="h-4 bg-background rounded w-3/4 animate-pulse"></div>
         </div>
     );
 
@@ -146,13 +192,7 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                         <h3 className="text-lg font-semibold text-text-primary">AI-Generated Executive Summary</h3>
                         <CopyToClipboard textToCopy={summary} />
                     </div>
-                    {isSummaryLoading ? (
-                        <div className="space-y-2">
-                            <div className="h-4 bg-background rounded w-full animate-pulse"></div>
-                            <div className="h-4 bg-background rounded w-5/6 animate-pulse"></div>
-                            <div className="h-4 bg-background rounded w-3/4 animate-pulse"></div>
-                        </div>
-                    ) : (
+                    {isSummaryLoading ? <SkeletonLoader /> : (
                         <p className="text-text-secondary whitespace-pre-wrap">{summary}</p>
                     )}
                 </div>
@@ -183,7 +223,7 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                    </div>
                 </div>
                 
-                <div className="bg-surface p-6 rounded-lg shadow-md print:break-inside-avoid !break-after-page">
+                <div className="bg-surface p-6 rounded-lg shadow-md print:break-inside-avoid">
                     <h3 className="text-lg font-semibold text-text-primary mb-4">Operational Efficiency vs. Industry Benchmarks</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 pt-4">
                         <div>
@@ -208,6 +248,13 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                         </div>
                     </div>
                 </div>
+                
+                <div className="bg-surface p-6 rounded-lg shadow-md print:break-inside-avoid !break-after-page">
+                    <h3 className="text-lg font-semibold text-text-primary">AI-Powered Strategic Analysis</h3>
+                    {isAnalysisLoading ? <SkeletonLoader /> : (
+                        <pre className="text-text-secondary whitespace-pre-wrap font-sans mt-2 text-sm">{kpiAnalysis}</pre>
+                    )}
+                </div>
 
                 <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 print:hidden">
                     <button 
@@ -215,6 +262,12 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                         className="bg-primary text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-primary-dark transition-colors duration-200"
                     >
                         Export Full Report (PDF)
+                    </button>
+                     <button 
+                        onClick={handleDownloadCsv}
+                        className="bg-surface border border-border text-text-secondary font-semibold py-2.5 px-6 rounded-lg hover:bg-background flex items-center transition-colors duration-200"
+                    >
+                        <CsvIcon /> <span className="ml-2">Download .csv</span>
                     </button>
                      <button 
                         onClick={handleDownloadTxt}
@@ -231,7 +284,7 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                 </div>
 
                 <div id="print-footer" className="hidden print:block">
-                    <p>Generated by ImpactSphere | For more information, visit <a href="https://myHerb.co.il" className="text-primary hover:underline">myHerb.co.il</a></p>
+                    <p>Generated by ImpactSphere | For more information, visit <a href="https://www.myherb.co.il/" className="text-primary hover:underline">myHerb.co.il</a></p>
                 </div>
             </div>
         </>

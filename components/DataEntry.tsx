@@ -41,10 +41,10 @@ const InputField: React.FC<{
                 id={id}
                 value={value}
                 onChange={onChange}
-                className={`block w-full pr-12 sm:text-sm border rounded-md p-2.5 ${
+                className={`block w-full pr-12 sm:text-sm border rounded-md p-2.5 bg-background ${
                     error 
                     ? 'border-red-500 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' 
-                    : 'border-border focus:ring-primary focus:border-primary'
+                    : 'border-border focus:ring-2 focus:ring-offset-1 focus:ring-primary focus:border-primary'
                 }`}
                 placeholder="0"
                 min="0"
@@ -174,10 +174,10 @@ const DataEntry: React.FC<DataEntryProps> = ({ onSubmit }) => {
                                 value={businessName}
                                 onChange={(e) => setBusinessName(e.target.value)}
                                 required
-                                className={`block w-full sm:text-sm border rounded-md p-2.5 ${
+                                className={`block w-full sm:text-sm border rounded-md p-2.5 bg-background ${
                                     errors.businessName
                                     ? 'border-red-500 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                                    : 'border-border focus:ring-primary focus:border-primary'
+                                    : 'border-border focus:ring-2 focus:ring-offset-1 focus:ring-primary focus:border-primary'
                                 }`}
                                 placeholder="e.g., Acme Corporation"
                                 aria-invalid={!!errors.businessName}
@@ -204,10 +204,10 @@ const DataEntry: React.FC<DataEntryProps> = ({ onSubmit }) => {
                                 onChange={handlePeriodQuantityChange}
                                 required
                                 min="1"
-                                className={`mt-1 block w-full sm:text-sm border rounded-md p-2.5 ${
+                                className={`mt-1 block w-full sm:text-sm border rounded-md p-2.5 bg-background ${
                                     errors.periodQuantity
                                     ? 'border-red-500 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                                    : 'border-border focus:ring-primary focus:border-primary'
+                                    : 'border-border focus:ring-2 focus:ring-offset-1 focus:ring-primary focus:border-primary'
                                 }`}
                                 aria-invalid={!!errors.periodQuantity}
                                 aria-describedby={errors.periodQuantity ? `periodQuantity-error` : undefined}
@@ -224,7 +224,7 @@ const DataEntry: React.FC<DataEntryProps> = ({ onSubmit }) => {
                                 value={periodType}
                                 onChange={handlePeriodTypeChange}
                                 required
-                                className="mt-1 focus:ring-primary focus:border-primary block w-full sm:text-sm border-border rounded-md p-2.5 bg-white"
+                                className="mt-1 focus:ring-2 focus:ring-offset-1 focus:ring-primary focus:border-primary block w-full sm:text-sm border-border rounded-md p-2.5 bg-background"
                             >
                                 <option>Hours</option>
                                 <option>Days</option>
