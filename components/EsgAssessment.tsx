@@ -95,6 +95,16 @@ const EsgAssessment: React.FC = () => {
         setCurrentCategoryIndex(0);
         setResults(null);
     }
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center text-center bg-surface p-8 rounded-lg shadow-md min-h-[500px] animate-fade-in">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <h2 className="text-2xl font-bold text-text-primary">Analyzing Your ESG Maturity</h2>
+                <p className="text-text-secondary mt-2">Our AI is generating personalized recommendations. This may take a moment.</p>
+            </div>
+        );
+    }
     
     if (results) {
         return (
@@ -113,14 +123,7 @@ const EsgAssessment: React.FC = () => {
                             <h3 className="text-lg font-semibold text-text-primary">AI-Powered Strategy</h3>
                             <CopyToClipboard textToCopy={results.recommendations} />
                         </div>
-                        {isLoading ? (
-                            <div className="space-y-2 mt-4">
-                                <div className="h-4 bg-background rounded w-full animate-pulse"></div>
-                                <div className="h-4 bg-background rounded w-5/6 animate-pulse"></div>
-                            </div>
-                        ) : (
-                             <p className="text-text-secondary whitespace-pre-wrap">{results.recommendations}</p>
-                        )}
+                        <p className="text-text-secondary whitespace-pre-wrap">{results.recommendations}</p>
                     </div>
                 </div>
                  <div className="text-center pt-4">
@@ -208,10 +211,9 @@ const EsgAssessment: React.FC = () => {
                     ) : (
                         <button
                             onClick={calculateResults}
-                            disabled={isLoading}
-                            className="bg-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-primary-dark disabled:bg-gray-400"
+                            className="bg-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-primary-dark"
                         >
-                           {isLoading ? 'Analyzing...' : 'See Results'}
+                           See Results
                         </button>
                     )}
                 </div>

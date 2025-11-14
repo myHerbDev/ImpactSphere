@@ -351,3 +351,40 @@ export const getKpiAnalysis = async (data: SustainabilityData, averages: Industr
     return "Could not generate analysis. A key strategy is to focus on metrics where your performance significantly trails the industry average to identify the most impactful areas for improvement.";
   }
 };
+
+export const generateVideoForInitiative = async (initiative: Initiative): Promise<string> => {
+    // Re-initialize to get the latest key, as per guidelines
+    const freshAi = new GoogleGenAI({ apiKey: API_KEY });
+
+    const prompt = `Create a short, inspiring 5-second video concept for the following ESG initiative: "${initiative.title}". The video should be visually engaging and abstract, conveying a sense of progress and positive impact. Focus on themes of sustainability, collaboration, and innovation. Do not include any text, logos, or people.`;
+
+    try {
+        let operation = await freshAi.models.generateVideos({
+            model: 'veo-3.1-fast-generate-preview',
+            prompt: prompt,
+            config: {
+                numberOfVideos: 1,
+                resolution: '720p',
+                aspectRatio: '16:9'
+            }
+        });
+
+        // Polling loop
+        while (!operation.done) {
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            operation = await freshAi.operations.getVideosOperation({ operation: operation });
+        }
+
+        const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+        if (!downloadLink) {
+            throw new Error("Video generation succeeded but no download link was provided.");
+        }
+        
+        // Append the API key for direct use in the client
+        return `${downloadLink}&key=${API_KEY}`;
+    } catch (error) {
+        console.error("Error generating video:", error);
+        // Rethrow the error to be handled by the calling component
+        throw error;
+    }
+};

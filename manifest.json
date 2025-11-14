@@ -1,0 +1,15 @@
+{
+  "short_name": "ImpactSphere",
+  "name": "ImpactSphere: ESG Intelligence Platform",
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#10b981",
+  "background_color": "#f8f9fa"
+}

@@ -13,7 +13,7 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, change, changeType }) =
     const arrow = isPositive === null ? '' : isPositive ? '↑' : '↓';
 
     return (
-        <div className="bg-surface p-4 rounded-lg shadow-md flex flex-col justify-between print:break-inside-avoid h-full">
+        <div className="bg-surface p-4 rounded-lg shadow-md flex flex-col justify-between print:break-inside-avoid h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <div>
                 <p className="text-sm text-text-secondary">{label}</p>
                 <p className="text-2xl font-bold text-text-primary mt-1">{value}</p>

@@ -152,10 +152,10 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
 
     const SkeletonLoader = () => (
          <div className="space-y-2 mt-2">
-            <div className="h-4 bg-background rounded w-full animate-pulse"></div>
-            <div className="h-4 bg-background rounded w-5/6 animate-pulse"></div>
-            <div className="h-4 bg-background rounded w-full animate-pulse"></div>
-            <div className="h-4 bg-background rounded w-3/4 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
         </div>
     );
 
