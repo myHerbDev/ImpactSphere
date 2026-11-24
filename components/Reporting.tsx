@@ -6,6 +6,7 @@ import { getReportSummary, getKpiAnalysis } from '../services/geminiService';
 import { fetchIndustryAverages } from '../services/mockApi';
 import { LeafIcon, DownloadIcon, EmailIcon, CsvIcon } from './Icons';
 import PageHeader from './PageHeader';
+import AiTextAction from './AiTextAction';
 import CopyToClipboard from './CopyToClipboard';
 import KpiCard from './KpiCard';
 
@@ -16,34 +17,10 @@ interface ReportingProps {
 
 const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
     const [summary, setSummary] = useState('');
-    const [isSummaryLoading, setIsSummaryLoading] = useState(false);
     const [industryAverages, setIndustryAverages] = useState<IndustryAverageData | null>(null);
-    const [isLoadingAverages, setIsLoadingAverages] = useState(true);
-    const [kpiAnalysis, setKpiAnalysis] = useState('');
-    const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
-
     useEffect(() => {
-        if (sustainabilityData) {
-            const fetchData = async () => {
-                setIsSummaryLoading(true);
-                setIsLoadingAverages(true);
-                setIsAnalysisLoading(true);
-                
-                const summaryResult = await getReportSummary(sustainabilityData);
-                setSummary(summaryResult);
-                setIsSummaryLoading(false);
-
-                const averagesResult = await fetchIndustryAverages();
-                setIndustryAverages(averagesResult);
-                setIsLoadingAverages(false);
-                
-                const analysisResult = await getKpiAnalysis(sustainabilityData, averagesResult);
-                setKpiAnalysis(analysisResult);
-                setIsAnalysisLoading(false);
-            };
-            fetchData();
-        }
-    }, [sustainabilityData]);
+        void fetchIndustryAverages().then(setIndustryAverages);
+    }, []);
 
     const handlePrint = () => {
         window.print();
@@ -70,14 +47,14 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
     } = sustainabilityData;
 
     const kpiData = [
-        { label: 'Carbon Footprint (tCO₂e)', value: carbonFootprint.toLocaleString(), change: -5, changeType: 'decrease' },
-        { label: 'Energy Consumption (MWh)', value: energyConsumption.toLocaleString(), change: -12, changeType: 'decrease' },
-        { label: 'Waste Diversion Rate', value: `${wasteDiversionRate}%`, change: 8, changeType: 'increase' },
-        { label: 'Water Usage (m³)', value: waterUsage.toLocaleString(), change: -9, changeType: 'decrease' },
-        { label: 'Sustainable Procurement', value: `${sustainableProcurement}%`, change: 15, changeType: 'increase' },
-        { label: 'Employee Engagement', value: `${employeeEngagement}%`, change: 10, changeType: 'increase' },
-        { label: 'Supply Chain Emissions', value: supplyChainEmissions.toLocaleString(), change: -7, changeType: 'decrease' },
-        { label: 'Renewable Energy Mix', value: `${renewableEnergyMix}%`, change: 20, changeType: 'increase' },
+        { label: 'Carbon Footprint (tCO₂e)', value: carbonFootprint.toLocaleString() },
+        { label: 'Energy Consumption (MWh)', value: energyConsumption.toLocaleString() },
+        { label: 'Waste Diversion Rate', value: `${wasteDiversionRate}%` },
+        { label: 'Water Usage (m³)', value: waterUsage.toLocaleString() },
+        { label: 'Sustainable Procurement', value: `${sustainableProcurement}%` },
+        { label: 'Employee Engagement', value: `${employeeEngagement}%` },
+        { label: 'Supply Chain Emissions', value: supplyChainEmissions.toLocaleString() },
+        { label: 'Renewable Energy Mix', value: `${renewableEnergyMix}%` },
     ] as const;
 
     const fossilFuelEnergy = 100 - renewableEnergyMix;
@@ -86,7 +63,7 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
         let content = `${businessName} - Sustainability Report\n`;
         content += `=================================\n\n`;
         content += `Reporting Period: ${formatDate(sustainabilityData.timeFrameStart)} - ${formatDate(sustainabilityData.timeFrameEnd)}\n\n`;
-        content += `AI-Generated Executive Summary:\n${summary}\n\n`;
+        if (summary) content += `AI-Generated Executive Summary:\n${summary}\n\n`;
         content += `Key Performance Indicators:\n`;
         kpiData.forEach(kpi => {
             content += `- ${kpi.label}: ${kpi.value}\n`;
@@ -106,7 +83,7 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
      const handleDownloadCsv = () => {
         if (!industryAverages) return;
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Metric,Your Value,Industry Average\r\n";
+        csvContent += "Metric,Your Value,Illustrative comparison\r\n";
         
         const dataMap = {
             'Carbon Footprint (tCO₂e)': [sustainabilityData.carbonFootprint, industryAverages.carbonFootprint],
@@ -150,15 +127,6 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
         </div>
     );
 
-    const SkeletonLoader = () => (
-         <div className="space-y-2 mt-2">
-            <div className="h-4 bg-background rounded w-full animate-pulse"></div>
-            <div className="h-4 bg-background rounded w-5/6 animate-pulse"></div>
-            <div className="h-4 bg-background rounded w-full animate-pulse"></div>
-            <div className="h-4 bg-background rounded w-3/4 animate-pulse"></div>
-        </div>
-    );
-
     return (
         <>
             <div id="print-area" className="space-y-8 animate-fade-in">
@@ -190,11 +158,9 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                 <div className="bg-surface p-6 rounded-lg shadow-md print:break-inside-avoid">
                     <div className="flex justify-between items-center mb-2">
                         <h3 className="text-lg font-semibold text-text-primary">AI-Generated Executive Summary</h3>
-                        <CopyToClipboard textToCopy={summary} />
+                        {summary && <CopyToClipboard textToCopy={summary} />}
                     </div>
-                    {isSummaryLoading ? <SkeletonLoader /> : (
-                        <p className="text-text-secondary whitespace-pre-wrap">{summary}</p>
-                    )}
+                    <AiTextAction label="Generate summary with Gemini" generate={() => getReportSummary(sustainabilityData)} onResult={setSummary} />
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 print:grid-cols-4 print:break-inside-avoid">
@@ -203,8 +169,8 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:grid-cols-2 print:break-inside-avoid">
                    <div className="bg-surface p-6 rounded-lg shadow-md">
-                        <h3 className="text-lg font-semibold text-text-primary mb-4">Carbon Footprint by Scope (tCO₂e)</h3>
-                        {isLoadingAverages || !industryAverages ? <ChartLoader /> : (
+                        <h3 className="text-lg font-semibold text-text-primary mb-4">Entered metrics with illustrative comparisons</h3>
+                        {!industryAverages ? <ChartLoader /> : (
                             <BarChart data={{
                                 labels: ['Scope 1 (Direct)', 'Scope 2 (Indirect)', 'Scope 3 (Supply Chain)'],
                                 values: [carbonFootprint, energyConsumption * 0.4, supplyChainEmissions],
@@ -214,9 +180,9 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                    </div>
                    <div className="bg-surface p-6 rounded-lg shadow-md flex flex-col">
                         <h3 className="text-lg font-semibold text-text-primary mb-4">Energy Consumption by Source</h3>
-                        {isLoadingAverages || !industryAverages ? <ChartLoader height={340} /> : (
+                        {!industryAverages ? <ChartLoader height={340} /> : (
                             <PieChart data={{
-                                labels: ['Grid (Fossil)', 'Renewables'],
+                                labels: ['Nonrenewable', 'Renewables'],
                                 values: [fossilFuelEnergy, renewableEnergyMix],
                             }} averageValue={industryAverages.renewableEnergyMix} />
                         )}
@@ -224,11 +190,11 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                 </div>
                 
                 <div className="bg-surface p-6 rounded-lg shadow-md print:break-inside-avoid">
-                    <h3 className="text-lg font-semibold text-text-primary mb-4">Operational Efficiency vs. Industry Benchmarks</h3>
+                    <h3 className="text-lg font-semibold text-text-primary mb-4">Operational efficiency with illustrative comparisons</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12 pt-4">
                         <div>
                             <h4 className="text-md font-medium text-text-primary text-center mb-2">Waste Diversion Rate (%)</h4>
-                             {isLoadingAverages || !industryAverages ? <ChartLoader height={250} /> : (
+                             {!industryAverages ? <ChartLoader height={250} /> : (
                                 <BarChart data={{
                                     labels: ['Diversion Rate'],
                                     values: [wasteDiversionRate],
@@ -238,7 +204,7 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                         </div>
                         <div>
                              <h4 className="text-md font-medium text-text-primary text-center mb-2">Water Usage (m³)</h4>
-                             {isLoadingAverages || !industryAverages ? <ChartLoader height={250} /> : (
+                             {!industryAverages ? <ChartLoader height={250} /> : (
                                 <BarChart data={{
                                     labels: ['Water Usage'],
                                     values: [waterUsage],
@@ -251,9 +217,7 @@ const Reporting: React.FC<ReportingProps> = ({ sustainabilityData }) => {
                 
                 <div className="bg-surface p-6 rounded-lg shadow-md print:break-inside-avoid !break-after-page">
                     <h3 className="text-lg font-semibold text-text-primary">AI-Powered Strategic Analysis</h3>
-                    {isAnalysisLoading ? <SkeletonLoader /> : (
-                        <pre className="text-text-secondary whitespace-pre-wrap font-sans mt-2 text-sm">{kpiAnalysis}</pre>
-                    )}
+                    {industryAverages && <AiTextAction label="Analyze metrics with Gemini" generate={() => getKpiAnalysis(sustainabilityData, industryAverages)} />}
                 </div>
 
                 <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 print:hidden">

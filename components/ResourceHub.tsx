@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getEsgPlaybookContent } from '../services/geminiService';
 import type { EsgPlaybookCategory, ResourceItem } from '../types';
 import Card from './Card';
@@ -35,32 +35,26 @@ const ResourceHub: React.FC = () => {
   const [isShowingSampleData, setIsShowingSampleData] = useState(false);
   const [modalContent, setModalContent] = useState<ResourceItem | null>(null);
 
-  const fetchContent = useCallback(async (category: EsgPlaybookCategory) => {
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
     setIsLoading(true);
     setIsShowingSampleData(false);
-    setContent([]);
-    try {
-      const items = await getEsgPlaybookContent(category);
-      if (items && items.length > 0) {
-        setContent(items);
-      } else {
-        console.warn(`API call for ${category} failed or returned no data. Falling back to sample data.`);
-        setContent(SAMPLE_PLAYBOOK_CONTENT[category]);
+    getEsgPlaybookContent(activeCategory, controller.signal)
+      .then(items => {
+        if (!controller.signal.aborted) setContent(items);
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setContent(SAMPLE_PLAYBOOK_CONTENT[activeCategory]);
         setIsShowingSampleData(true);
-      }
-    } catch (err) {
-      console.error(`An unexpected error occurred while fetching ${category}:`, err);
-      setContent(SAMPLE_PLAYBOOK_CONTENT[category]);
-      setIsShowingSampleData(true);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
+      });
+    return () => controller.abort();
+  }, [activeCategory, attempt]);
 
-  useEffect(() => {
-    fetchContent(activeCategory);
-  }, [activeCategory, fetchContent]);
-  
   const handleCardClick = (item: ResourceItem) => {
     setModalContent(item);
   };
@@ -119,8 +113,9 @@ const ResourceHub: React.FC = () => {
         <div>
            {isShowingSampleData && (
                 <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 mb-6 rounded-md" role="alert">
-                    <p className="font-bold">Live Data Temporarily Unavailable</p>
-                    <p>Displaying sample content due to high traffic. Live insights will return shortly.</p>
+                    <p className="font-bold">Sample playbook</p>
+                    <p>AI suggestions are temporarily unavailable. Browse the examples below.</p>
+                    <button type="button" className="mt-2 underline" onClick={() => setAttempt(n => n + 1)}>Retry AI suggestions</button>
                 </div>
             )}
           {isLoading ? (

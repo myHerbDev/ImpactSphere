@@ -10,11 +10,8 @@ View your app in AI Studio: https://ai.studio/apps/drive/1nikBgkKlXKefl4xUe3UjPa
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+Use Node.js 22 or later. Install dependencies with `npm ci` and start the dashboard with `npm run dev`. The Vite dev server serves the dashboard without AI.
 
+To run both the dashboard and its server endpoint, use `vercel dev` in the linked ImpactSphere project. AI generation requires the server-only `POSTGRES_URL_POSTGRES_URL` connection to Neon with [the quota migration](migrations/001_gemini_quota.sql) applied. Only quota counters are stored in this schema. Server requests use the project's Vercel OIDC identity for Gemini through AI Gateway. An explicit server-only `GEMINI_API_KEY` selects Google's direct API instead.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Run the API contract tests with `node --test tests/gemini.test.mjs`.

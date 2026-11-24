@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { AssessmentAnswers, AssessmentQuestion, AssessmentCategoryName, AssessmentMaturity, AssessmentScores } from '../types';
 import { getAssessmentRecommendations } from '../services/geminiService';
 import PageHeader from './PageHeader';
-import CopyToClipboard from './CopyToClipboard';
+import AiTextAction from './AiTextAction';
 import AssessmentResultsChart from './AssessmentResultsChart';
 
 const ASSESSMENT_QUESTIONS: AssessmentQuestion[] = [
@@ -58,14 +58,14 @@ const MATURITY_LEVELS: { label: string, value: AssessmentMaturity }[] = [
 
 type Results = {
     scores: AssessmentScores;
-    recommendations: string;
+
 };
 
 const EsgAssessment: React.FC = () => {
     const [currentCategoryIndex, setCurrentCategoryIndex] = useState(0);
     const [answers, setAnswers] = useState<AssessmentAnswers>(initialAnswers);
     const [results, setResults] = useState<Results | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+
 
     const handleAnswerChange = (category: AssessmentCategoryName, questionIndex: number, value: AssessmentMaturity) => {
         setAnswers(prev => {
@@ -75,8 +75,7 @@ const EsgAssessment: React.FC = () => {
         });
     };
 
-    const calculateResults = async () => {
-        setIsLoading(true);
+    const calculateResults = () => {
         const scores: AssessmentScores = {} as AssessmentScores;
         CATEGORIES.forEach(category => {
             const categoryAnswers = answers[category];
@@ -85,9 +84,7 @@ const EsgAssessment: React.FC = () => {
             scores[category] = maxScore > 0 ? (actualScore / maxScore) * 100 : 0;
         });
 
-        const recommendations = await getAssessmentRecommendations(scores);
-        setResults({ scores, recommendations });
-        setIsLoading(false);
+        setResults({ scores });
     };
     
     const restartAssessment = () => {
@@ -101,26 +98,18 @@ const EsgAssessment: React.FC = () => {
             <div className="space-y-8 animate-fade-in">
                 <PageHeader 
                     title="Your ESG Maturity Results"
-                    description="Here is a snapshot of your organization's ESG readiness and AI-powered strategic recommendations."
+                    description="These scores reflect your answers to the readiness checklist."
                 />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className="bg-surface p-6 rounded-lg shadow-md">
-                        <h3 className="text-lg font-semibold text-text-primary mb-4">Maturity Benchmark</h3>
+                        <h3 className="text-lg font-semibold text-text-primary mb-4">Maturity scores</h3>
                         <AssessmentResultsChart scores={results.scores} />
                     </div>
                     <div className="bg-surface p-6 rounded-lg shadow-md">
                         <div className="flex justify-between items-center mb-2">
                             <h3 className="text-lg font-semibold text-text-primary">AI-Powered Strategy</h3>
-                            <CopyToClipboard textToCopy={results.recommendations} />
                         </div>
-                        {isLoading ? (
-                            <div className="space-y-2 mt-4">
-                                <div className="h-4 bg-background rounded w-full animate-pulse"></div>
-                                <div className="h-4 bg-background rounded w-5/6 animate-pulse"></div>
-                            </div>
-                        ) : (
-                             <p className="text-text-secondary whitespace-pre-wrap">{results.recommendations}</p>
-                        )}
+                        <AiTextAction label="Get recommendations from Gemini" generate={() => getAssessmentRecommendations(results.scores)} />
                     </div>
                 </div>
                  <div className="text-center pt-4">
@@ -208,10 +197,9 @@ const EsgAssessment: React.FC = () => {
                     ) : (
                         <button
                             onClick={calculateResults}
-                            disabled={isLoading}
                             className="bg-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-primary-dark disabled:bg-gray-400"
                         >
-                           {isLoading ? 'Analyzing...' : 'See Results'}
+                           See Results
                         </button>
                     )}
                 </div>

@@ -125,7 +125,7 @@ const PieChart: React.FC<PieChartProps> = ({ data, averageValue }) => {
         </ResponsiveContainer>
       </div>
        <div className="text-center text-sm text-text-secondary mt-2 border-t pt-3">
-        <p>Your renewable mix is <strong>{yourRenewableValue}%</strong> compared to the industry average of <strong>{averageValue}%</strong>.</p>
+        <p>Your renewable mix is <strong>{yourRenewableValue}%</strong> with an illustrative reference of <strong>{averageValue}%</strong>.</p>
       </div>
     </div>
   );

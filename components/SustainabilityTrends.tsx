@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { getSustainabilityTrends } from '../services/geminiService';
+import React from 'react';
 import type { SustainabilityTrend } from '../types';
 
 const SAMPLE_TRENDS: SustainabilityTrend[] = [
@@ -33,58 +32,14 @@ const TrendCard: React.FC<{ trend: SustainabilityTrend }> = ({ trend }) => {
 };
 
 const SustainabilityTrends: React.FC = () => {
-    const [trends, setTrends] = useState<SustainabilityTrend[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isShowingSampleData, setIsShowingSampleData] = useState(false);
-
-    useEffect(() => {
-        const fetchTrends = async () => {
-            setIsLoading(true);
-            setIsShowingSampleData(false);
-            try {
-                const data = await getSustainabilityTrends();
-                if (data && data.length > 0) {
-                    setTrends(data);
-                } else {
-                    console.warn("API call failed or returned no data. Falling back to sample data.");
-                    setTrends(SAMPLE_TRENDS);
-                    setIsShowingSampleData(true);
-                }
-            } catch (err) {
-                console.error("An unexpected error occurred while fetching trends:", err);
-                setTrends(SAMPLE_TRENDS);
-                setIsShowingSampleData(true);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchTrends();
-    }, []);
-
-    if (isLoading) {
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.from({ length: 6 }).map((_, index) => (
-                    <div key={index} className="bg-surface p-4 rounded-lg shadow-md animate-pulse h-28">
-                        <div className="h-4 bg-background rounded w-3/4 mb-2"></div>
-                        <div className="h-6 bg-background rounded w-1/2 mb-3"></div>
-                        <div className="h-3 bg-background rounded w-full"></div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
-    
     return (
         <>
-            {isShowingSampleData && (
                 <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 mb-6 rounded-md" role="alert">
-                    <p className="font-bold">Live Data Temporarily Unavailable</p>
-                    <p>Displaying sample data due to a connection issue. Live trends will return shortly.</p>
+                    <p className="font-bold">Sample sustainability indicators</p>
+                    <p>Figures shown are illustrative.</p>
                 </div>
-            )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {trends.map((trend, index) => (
+                {SAMPLE_TRENDS.map((trend, index) => (
                     <TrendCard key={index} trend={trend} />
                 ))}
             </div>

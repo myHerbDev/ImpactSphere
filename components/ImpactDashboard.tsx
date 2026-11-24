@@ -31,7 +31,7 @@ const ImpactDashboard: React.FC<ImpactDashboardProps> = ({ sustainabilityData })
           </span>
         </h1>
         <p className="max-w-3xl mx-auto text-lg text-text-secondary">
-          ImpactSphere empowers organizations to transform ESG (Environmental, Social, and Governance) goals into measurable achievements with strategic frameworks and AI-driven insights.
+          ImpactSphere empowers organizations to transform ESG (Environmental, Social, and Governance) goals into measurable achievements with sample frameworks and reporting tools.
         </p>
       </section>
 
@@ -40,10 +40,10 @@ const ImpactDashboard: React.FC<ImpactDashboardProps> = ({ sustainabilityData })
         <h2 className="text-3xl font-bold text-text-primary text-center mb-8">A Platform for Progress</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <FeatureCard icon={<AssessmentIcon />} title="Assess Readiness">
-            Use our ESG Readiness checklist, based on the Leader's Guide to Sustainable Business Transformation, to identify gaps and get AI-powered recommendations.
+            Use our ESG Readiness checklist, based on the Leader's Guide to Sustainable Business Transformation, to identify gaps and see your checklist results.
           </FeatureCard>
           <FeatureCard icon={<FlaskIcon />} title="Gain Insights">
-            Leverage AI to generate executive summaries from your data and receive strategic insights to stay ahead of sustainability trends.
+            Review the sustainability metrics you enter in one report.
           </FeatureCard>
           <FeatureCard icon={<BookIcon />} title="Explore Playbook">
             Access a curated ESG Playbook with content on value drivers, overcoming challenges, and industry-specific use cases.
@@ -61,14 +61,14 @@ const ImpactDashboard: React.FC<ImpactDashboardProps> = ({ sustainabilityData })
         </div>
         {sustainabilityData ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <KpiCard label="Carbon Footprint (tCO₂e)" value={sustainabilityData.carbonFootprint.toLocaleString()} change={-5} changeType='decrease' />
-                <KpiCard label="Energy Consumption (MWh)" value={sustainabilityData.energyConsumption.toLocaleString()} change={-12} changeType='decrease' />
-                <KpiCard label="Renewable Energy Mix" value={`${sustainabilityData.renewableEnergyMix}%`} change={20} changeType='increase' />
-                <KpiCard label="Waste Diversion Rate" value={`${sustainabilityData.wasteDiversionRate}%`} change={8} changeType='increase' />
-                <KpiCard label="Water Usage (m³)" value={sustainabilityData.waterUsage.toLocaleString()} change={-9} changeType='decrease' />
-                <KpiCard label="Supply Chain Emissions" value={sustainabilityData.supplyChainEmissions.toLocaleString()} change={-7} changeType='decrease' />
-                <KpiCard label="Employee Engagement" value={`${sustainabilityData.employeeEngagement}%`} change={10} changeType='increase' />
-                <KpiCard label="Sustainable Procurement" value={`${sustainabilityData.sustainableProcurement}%`} change={15} changeType='increase' />
+                <KpiCard label="Carbon Footprint (tCO₂e)" value={sustainabilityData.carbonFootprint.toLocaleString()} />
+                <KpiCard label="Energy Consumption (MWh)" value={sustainabilityData.energyConsumption.toLocaleString()} />
+                <KpiCard label="Renewable Energy Mix" value={`${sustainabilityData.renewableEnergyMix}%`} />
+                <KpiCard label="Waste Diversion Rate" value={`${sustainabilityData.wasteDiversionRate}%`} />
+                <KpiCard label="Water Usage (m³)" value={sustainabilityData.waterUsage.toLocaleString()} />
+                <KpiCard label="Supply Chain Emissions" value={sustainabilityData.supplyChainEmissions.toLocaleString()} />
+                <KpiCard label="Employee Engagement" value={`${sustainabilityData.employeeEngagement}%`} />
+                <KpiCard label="Sustainable Procurement" value={`${sustainabilityData.sustainableProcurement}%`} />
             </div>
         ) : (
             <div className="bg-surface p-8 rounded-lg shadow-md text-center">
@@ -81,7 +81,7 @@ const ImpactDashboard: React.FC<ImpactDashboardProps> = ({ sustainabilityData })
       {/* Global Sustainability Snapshot Section */}
       <section>
         <div className="border-t border-border pt-12">
-            <PageHeader title="Global Sustainability Snapshot" description="A real-time overview of key worldwide sustainability trends and economic data." />
+            <PageHeader title="Global Sustainability Snapshot" description="Examples of sustainability indicators and how they might be presented." />
         </div>
         <SustainabilityTrends />
       </section>

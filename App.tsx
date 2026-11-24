@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import Header from './components/Header';
 import ImpactDashboard from './components/ImpactDashboard';
 import ResourceHub from './components/ResourceHub';
 import Initiatives from './components/Initiatives';
-import Reporting from './components/Reporting';
 import DataEntry from './components/DataEntry';
-import EsgAssessment from './components/EsgAssessment';
 import type { SustainabilityData } from './types';
 import { NAV_ITEMS } from './constants';
+
+const Reporting = lazy(() => import('./components/Reporting'));
+const EsgAssessment = lazy(() => import('./components/EsgAssessment'));
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<string>('Impact Dashboard');
@@ -45,7 +46,9 @@ const App: React.FC = () => {
         setActiveView={setActiveView} 
       />
       <main className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
-        {renderContent()}
+        <Suspense fallback={<p role="status">Loading view…</p>}>
+          {renderContent()}
+        </Suspense>
       </main>
       <footer className="text-center p-4 mt-8 text-xs text-gray-500 print:hidden">
         <p>&copy; 2024 ImpactSphere. Made by <a href="https://www.myherb.co.il/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">myHerb</a> as a part of DevSphere - Sustainable Development.</p>

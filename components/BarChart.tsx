@@ -15,7 +15,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="bg-surface p-3 border border-border rounded-md shadow-lg text-sm">
         <p className="label text-text-primary font-semibold mb-2">{label}</p>
         <p style={{ color: '#10b981' }}>{`Your Result: ${payload[0].value.toLocaleString()}`}</p>
-        <p style={{ color: '#a7f3d0' }}>{`Industry Average: ${payload[1].value.toLocaleString()}`}</p>
+        <p style={{ color: '#a7f3d0' }}>{`Illustrative comparison: ${payload[1].value.toLocaleString()}`}</p>
       </div>
     );
   }
@@ -47,7 +47,7 @@ const BarChart: React.FC<BarChartProps> = ({ data }) => {
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }}/>
           <Legend wrapperStyle={{fontSize: "12px", paddingTop: '10px'}}/>
           <Bar dataKey="yourValue" name="Your Result" fill="#10b981" radius={[4, 4, 0, 0]} animationDuration={800} />
-          <Bar dataKey="averageValue" name="Industry Average" fill="#a7f3d0" radius={[4, 4, 0, 0]} animationDuration={800} />
+          <Bar dataKey="averageValue" name="Illustrative comparison" fill="#a7f3d0" radius={[4, 4, 0, 0]} animationDuration={800} />
         </RechartsBarChart>
       </ResponsiveContainer>
     </div>

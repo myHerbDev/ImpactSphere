@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getEsgInitiatives } from '../services/geminiService';
 import type { Initiative } from '../types';
 import { TrophyIcon } from './Icons';
@@ -30,33 +30,27 @@ const Initiatives: React.FC = () => {
     const [isShowingSampleData, setIsShowingSampleData] = useState(false);
     const [modalContent, setModalContent] = useState<Initiative | null>(null);
 
-    const fetchInitiatives = useCallback(async () => {
-        setIsLoading(true);
-        setIsShowingSampleData(false);
-        try {
-            const items = await getEsgInitiatives();
-            if (items && items.length > 0) {
-              setInitiatives(items);
-            } else {
-              console.warn("API call for initiatives failed or returned no data. Falling back to sample data.");
-              setInitiatives(SAMPLE_INITIATIVES);
-              setIsShowingSampleData(true);
-            }
-        } catch (err) {
-            console.error('An unexpected error occurred while fetching initiatives:', err);
-            setInitiatives(SAMPLE_INITIATIVES);
-            setIsShowingSampleData(true);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
+    const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    setIsLoading(true);
+    setIsShowingSampleData(false);
+    getEsgInitiatives(controller.signal)
+      .then(items => {
+        if (!controller.signal.aborted) setInitiatives(items);
+      })
+      .catch(() => {
+        if (controller.signal.aborted) return;
+        setInitiatives(SAMPLE_INITIATIVES);
+        setIsShowingSampleData(true);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setIsLoading(false);
+      });
+    return () => controller.abort();
+  }, [attempt]);
 
-    useEffect(() => {
-        fetchInitiatives();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-    
-    const handleInitiativeClick = (initiative: Initiative) => {
+  const handleInitiativeClick = (initiative: Initiative) => {
         setModalContent(initiative);
     };
     
@@ -73,8 +67,9 @@ const Initiatives: React.FC = () => {
                 />
                  {isShowingSampleData && (
                     <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 mb-6 rounded-md" role="alert">
-                        <p className="font-bold">Live Data Temporarily Unavailable</p>
-                        <p>Displaying sample initiatives due to high traffic. Live content will return shortly.</p>
+                        <p className="font-bold">Sample initiatives</p>
+                        <p>AI suggestions are temporarily unavailable. Browse the examples below.</p>
+                    <button type="button" className="mt-2 underline" onClick={() => setAttempt(n => n + 1)}>Retry AI suggestions</button>
                     </div>
                 )}
                 {isLoading ? (
